@@ -1,4 +1,4 @@
-package com.example.openVpnDemo;
+package com.mutieawaisi.freevpn;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

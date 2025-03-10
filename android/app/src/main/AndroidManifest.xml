@@ -9,7 +9,7 @@
     
     <application
         android:name="${applicationName}"
-        android:label="OpenVPN Demo"
+        android:label="Free VPN"
         android:icon="@mipmap/ic_launcher"
         tools:ignore="AllowBackup">
         
