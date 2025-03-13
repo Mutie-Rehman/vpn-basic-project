@@ -16,7 +16,16 @@ dependencies:
   
   # Cupertino style icons
   cupertino_icons: ^1.0.8
+
+  # for state mangement
   get: ^4.7.2
+
+  # for api calling
+  http: ^1.3.0
+
+  # for converting csv data to list
+  csv: ^6.0.0
+
 
 
 dev_dependencies:
