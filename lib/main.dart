@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
+import 'package:vpn_basic_project/controllers/theme_controller.dart';
 import 'package:vpn_basic_project/screens/splash_screen.dart';
 
-void main() {
-  // Initialize the binding before using SystemChrome
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ Initialize ThemeController before running the app
+  Get.put(ThemeController());
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   SystemChrome.setPreferredOrientations(
@@ -19,19 +22,40 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'OpenVpn Demo',
-      //theme
-      theme: ThemeData(
-        appBarTheme:
-            AppBarTheme(centerTitle: true, elevation: 3, color: Colors.blue),
-        primaryColor: Colors.blue,
-        primaryIconTheme: IconThemeData(color: Colors.blue),
-        primarySwatch: Colors.blue,
-        primaryTextTheme: TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+    final themeController = Get.find<ThemeController>();
+
+    return Obx(
+      () => GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'OpenVpn Demo',
+        theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            centerTitle: true,
+            elevation: 3,
+            color: Colors.blue,
+          ),
+          primaryColor: Colors.blue,
+          primaryIconTheme: const IconThemeData(color: Colors.white),
+          primarySwatch: Colors.blue,
+          primaryTextTheme:
+              const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
+        ),
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          appBarTheme: const AppBarTheme(
+            centerTitle: true,
+            elevation: 3,
+            color: Colors.blue,
+          ),
+        ),
+        themeMode:
+            themeController.themeMode.value, // ✅ Load theme from controller
+        home: SplashScreen(),
       ),
-      home: SplashScreen(),
     );
   }
+}
+
+extension AppTheme on ThemeData {
+  Color get lightText => Get.isDarkMode ? Colors.white70 : Colors.black54;
 }
