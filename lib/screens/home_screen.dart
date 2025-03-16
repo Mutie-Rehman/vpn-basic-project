@@ -1,8 +1,11 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:vpn_basic_project/controllers/home_controller.dart';
+import 'package:vpn_basic_project/controllers/theme_controller.dart';
 import 'package:vpn_basic_project/global/global_variables.dart';
 import 'package:vpn_basic_project/models/vpn_status.dart';
 import 'package:vpn_basic_project/screens/location_screen.dart';
@@ -13,6 +16,7 @@ import '../services/vpn_engine.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
   final _controller = Get.put(HomeController());
+  final _themeController = Get.find<ThemeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +29,18 @@ class HomeScreen extends StatelessWidget {
       //appbar
       appBar: AppBar(
         title: Text('Free Open VPN'),
-        leading: Icon(CupertinoIcons.home),
+        leading: Icon(
+          CupertinoIcons.home,
+          color: Colors.white,
+        ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              _themeController.toggleTheme(); // ✅ Toggle Theme
+            },
             icon: Icon(
               CupertinoIcons.brightness_solid,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           IconButton(
@@ -39,7 +48,7 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {},
             icon: Icon(
               CupertinoIcons.info,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
         ],
@@ -213,7 +222,9 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           //count down timer
-          Obx(() => CountDownTimer(startTimer: _controller.startTimer.value)),
+          Obx(() => CountDownTimer(
+              startTimer:
+                  _controller.vpnState.value == VpnEngine.vpnConnected)),
         ],
       );
 }
