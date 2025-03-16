@@ -1,19 +1,51 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vpn_basic_project/models/vpn.dart';
 import 'package:vpn_basic_project/models/vpn_config.dart';
 import 'package:vpn_basic_project/services/vpn_engine.dart';
 
 class HomeController extends GetxController {
   final Rx<Vpn> vpn = Vpn.fromJson({}).obs;
-  final RxInt ping = 0.obs; // ✅ Added ping value
+  final RxInt ping = 0.obs;
   final RxBool startTimer = false.obs;
   final vpnState = VpnEngine.vpnDisconnected.obs;
 
-//connect to VPN
+  @override
+  void onInit() {
+    super.onInit();
+    _loadSelectedVpn(); // ✅ Load last VPN on start
+  }
+
+  // ✅ Load last selected VPN
+  Future<void> _loadSelectedVpn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final vpnJson = prefs.getString('selected_vpn');
+    if (vpnJson != null) {
+      vpn.value = Vpn.fromJson(jsonDecode(vpnJson));
+      ping.value = vpn.value.Speed ~/ 1024;
+
+      // ✅ Restore VPN state and auto-connect
+      final wasConnected = prefs.getBool('vpn_connected') ?? false;
+      if (wasConnected) {
+        _connectToVpn(shouldReconnect: true);
+      }
+    }
+  }
+
+  // ✅ Save VPN state when connecting
+  Future<void> _saveVpnState(bool isConnected) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('vpn_connected', isConnected);
+  }
+
+  // ✅ Connect to VPN
   void connectToVpn() {
+    _connectToVpn(shouldReconnect: false);
+  }
+
+  void _connectToVpn({bool shouldReconnect = false}) {
     if (vpn.value.OpenVPNConfigDataBase64.isEmpty) return;
 
     if (vpnState.value == VpnEngine.vpnDisconnected) {
@@ -25,13 +57,22 @@ class HomeController extends GetxController {
           password: 'vpn',
           config: config);
 
-      ///Start if stage is disconnected
+      /// Start if stage is disconnected
       startTimer.value = true;
       VpnEngine.startVpn(vpnConfig);
+      _saveVpnState(true); // ✅ Save state when connected
     } else {
-      ///Stop if stage is "not" disconnected
+      /// Stop if connected
       startTimer.value = false;
       VpnEngine.stopVpn();
+      _saveVpnState(false); // ✅ Save state when disconnected
+
+      // ✅ Reconnect if needed
+      if (shouldReconnect) {
+        Future.delayed(Duration(seconds: 2), () {
+          _connectToVpn();
+        });
+      }
     }
   }
 
@@ -40,10 +81,8 @@ class HomeController extends GetxController {
     switch (vpnState.value) {
       case VpnEngine.vpnDisconnected:
         return Colors.blue;
-
       case VpnEngine.vpnConnected:
         return Colors.green;
-
       default:
         return Colors.orangeAccent;
     }
@@ -54,10 +93,8 @@ class HomeController extends GetxController {
     switch (vpnState.value) {
       case VpnEngine.vpnDisconnected:
         return "Tap to Connect";
-
       case VpnEngine.vpnConnected:
         return "Disconnect";
-
       default:
         return "Connecting";
     }
