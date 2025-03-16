@@ -89,6 +89,7 @@ class Apis {
       log('Error fetching VPN servers: $e');
     }
     vpnList.shuffle();
+
     return vpnList;
   }
 }

@@ -35,6 +35,11 @@ import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodChannel;
 
+import io.flutter.plugins.GeneratedPluginRegistrant;
+import io.flutter.FlutterInjector;
+
+
+
 
 public class MainActivity extends FlutterActivity {
     private MethodChannel vpnControlMethod;
@@ -72,6 +77,7 @@ public class MainActivity extends FlutterActivity {
         super.finish();
     }
 
+
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(newBase);
@@ -84,117 +90,122 @@ public class MainActivity extends FlutterActivity {
         super.onDetachedFromWindow();
     }
 
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String stage = intent.getStringExtra("state");
-                if (stage != null) setStage(stage);
+   @Override
+protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
 
-                if (vpnStatusSink != null) {
-                    try {
-                        String duration = intent.getStringExtra("duration");
-                        String lastPacketReceive = intent.getStringExtra("lastPacketReceive");
-                        String byteIn = intent.getStringExtra("byteIn");
-                        String byteOut = intent.getStringExtra("byteOut");
+    FlutterInjector.instance().flutterLoader().startInitialization(getApplicationContext());
 
-                        if (duration == null) duration = "00:00:00";
-                        if (lastPacketReceive == null) lastPacketReceive = "0";
-                        if (byteIn == null) byteIn = " ";
-                        if (byteOut == null) byteOut = " ";
+    LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String stage = intent.getStringExtra("state");
+            if (stage != null) setStage(stage);
 
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("duration", duration);
-                        jsonObject.put("last_packet_receive", lastPacketReceive);
-                        jsonObject.put("byte_in", byteIn);
-                        jsonObject.put("byte_out", byteOut);
+            if (vpnStatusSink != null) {
+                try {
+                    String duration = intent.getStringExtra("duration");
+                    String lastPacketReceive = intent.getStringExtra("lastPacketReceive");
+                    String byteIn = intent.getStringExtra("byteIn");
+                    String byteOut = intent.getStringExtra("byteOut");
 
-                        localJson = jsonObject;
+                    if (duration == null) duration = "00:00:00";
+                    if (lastPacketReceive == null) lastPacketReceive = "0";
+                    if (byteIn == null) byteIn = " ";
+                    if (byteOut == null) byteOut = " ";
 
-                        if (attached) vpnStatusSink.success(jsonObject.toString());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("duration", duration);
+                    jsonObject.put("last_packet_receive", lastPacketReceive);
+                    jsonObject.put("byte_in", byteIn);
+                    jsonObject.put("byte_out", byteOut);
+
+                    localJson = jsonObject;
+
+                    if (attached) vpnStatusSink.success(jsonObject.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        }, new IntentFilter("connectionState"));
-        super.onCreate(savedInstanceState);
-    }
+        }
+    }, new IntentFilter("connectionState"));
+}
 
-    @Override
-    public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
-        super.configureFlutterEngine(flutterEngine);
-        vpnControlEvent = new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), EVENT_CHANNEL_VPN_STAGE);
-        vpnControlEvent.setStreamHandler(new EventChannel.StreamHandler() {
-            @Override
-            public void onListen(Object arguments, EventChannel.EventSink events) {
-                vpnStageSink = events;
-            }
 
-            @Override
-            public void onCancel(Object arguments) {
-                vpnStageSink.endOfStream();
-            }
-        });
+@Override
+public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+    GeneratedPluginRegistrant.registerWith(flutterEngine);
 
-        vpnStatusEvent = new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), EVENT_CHANNEL_VPN_STATUS);
-        vpnStatusEvent.setStreamHandler(new EventChannel.StreamHandler() {
-            @Override
-            public void onListen(Object arguments, EventChannel.EventSink events) {
-                vpnStatusSink = events;
-            }
+    vpnControlEvent = new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), EVENT_CHANNEL_VPN_STAGE);
+    vpnControlEvent.setStreamHandler(new EventChannel.StreamHandler() {
+        @Override
+        public void onListen(Object arguments, EventChannel.EventSink events) {
+            vpnStageSink = events;
+        }
 
-            @Override
-            public void onCancel(Object arguments) {
+        @Override
+        public void onCancel(Object arguments) {
+            vpnStageSink.endOfStream();
+        }
+    });
 
-            }
-        });
+    vpnStatusEvent = new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), EVENT_CHANNEL_VPN_STATUS);
+    vpnStatusEvent.setStreamHandler(new EventChannel.StreamHandler() {
+        @Override
+        public void onListen(Object arguments, EventChannel.EventSink events) {
+            vpnStatusSink = events;
+        }
 
-        vpnControlMethod = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), METHOD_CHANNEL_VPN_CONTROL);
-        vpnControlMethod.setMethodCallHandler((call, result) -> {
-            switch (call.method) {
-                case "stop":
-                    OpenVPNThread.stop();
-                    setStage("disconnected");
-                    break;
-                case "start":
-                    config = call.argument("config");
-                    name = call.argument("country");
-                    username = call.argument("username");
-                    password = call.argument("password");
+        @Override
+        public void onCancel(Object arguments) {
 
-                    if (call.argument("dns1") != null) dns1 = call.argument("dns1");
-                    if (call.argument("dns2") != null) dns2 = call.argument("dns2");
+        }
+    });
 
-                    bypassPackages = call.argument("bypass_packages");
+    vpnControlMethod = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), METHOD_CHANNEL_VPN_CONTROL);
+    vpnControlMethod.setMethodCallHandler((call, result) -> {
+        switch (call.method) {
+            case "stop":
+                OpenVPNThread.stop();
+                setStage("disconnected");
+                break;
+            case "start":
+                config = call.argument("config");
+                name = call.argument("country");
+                username = call.argument("username");
+                password = call.argument("password");
 
-                    if (config == null || name == null) {
-                        Log.e(TAG, "Config not valid!");
-                        return;
-                    }
+                if (call.argument("dns1") != null) dns1 = call.argument("dns1");
+                if (call.argument("dns2") != null) dns2 = call.argument("dns2");
 
-                    prepareVPN();
-                    break;
-                case "refresh":
-                    updateVPNStages();
-                    break;
-                case "refresh_status":
-                    updateVPNStatus();
-                    break;
-                case "stage":
-                    result.success(OpenVPNService.getStatus());
-                    break;
-                case "kill_switch":
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                        Intent intent = new Intent(Settings.ACTION_VPN_SETTINGS);
-                        startActivity(intent);
-                    }
-                    break;
-            }
-        });
+                bypassPackages = call.argument("bypass_packages");
 
-    }
+                if (config == null || name == null) {
+                    Log.e(TAG, "Config not valid!");
+                    return;
+                }
+
+                prepareVPN();
+                break;
+            case "refresh":
+                updateVPNStages();
+                break;
+            case "refresh_status":
+                updateVPNStatus();
+                break;
+            case "stage":
+                result.success(OpenVPNService.getStatus());
+                break;
+            case "kill_switch":
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    Intent intent = new Intent(Settings.ACTION_VPN_SETTINGS);
+                    startActivity(intent);
+                }
+                break;
+        }
+    });
+}
+
 
     private void prepareVPN() {
         if (isConnected()) {
