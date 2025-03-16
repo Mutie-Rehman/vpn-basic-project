@@ -8,8 +8,11 @@ class LocationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _locationController = Get.put(LocationController());
-    _locationController.getVpnData();
+    final locationController = Get.put(LocationController());
+
+    // ✅ If the list is empty, trigger API call or load from cache
+    locationController.getVpnData();
+
     return GetBuilder<LocationController>(
       builder: (controller) {
         return Scaffold(
@@ -30,12 +33,12 @@ class LocationScreen extends StatelessWidget {
               : controller.vpnList.isEmpty
                   ? _noVpnFound()
                   : _vpnData(controller),
+
+          // ✅ Refresh Button
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              controller.vpnList.clear(); // ✅ Clear previous data
-              controller.isLoading.value = true;
-              controller.update();
-              await controller.getVpnData(); // ✅ Fetch new data
+              // ✅ Force refresh from API
+              await controller.refreshVpnData();
             },
             backgroundColor: Colors.blue,
             child: const Icon(
@@ -85,8 +88,6 @@ class LocationScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         itemBuilder: (context, index) {
           final vpn = controller.vpnList[index];
-
-          // ✅ Use the VpnCard widget here
           return VpnCard(vpn: vpn);
         },
       );
