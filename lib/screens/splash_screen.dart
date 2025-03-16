@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/route_manager.dart';
+import 'package:vpn_basic_project/main.dart';
 import 'package:vpn_basic_project/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
             Text(
               "FREE VPN",
               style: TextStyle(
-                  color: Colors.black,
+                  color: Theme.of(context).lightText,
                   fontSize: 28,
                   fontWeight: FontWeight.w800),
             ),
