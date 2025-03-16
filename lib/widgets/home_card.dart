@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vpn_basic_project/global/global_variables.dart';
+import 'package:vpn_basic_project/main.dart';
 
 class HomeCard extends StatelessWidget {
   final String title, subtitle;
@@ -31,7 +32,7 @@ class HomeCard extends StatelessWidget {
           ),
           Text(
             subtitle,
-            style: TextStyle(fontSize: 12, color: Colors.black54),
+            style: TextStyle(fontSize: 12, color: Theme.of(context).lightText),
           ),
         ],
       ),
