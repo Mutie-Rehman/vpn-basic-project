@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vpn_basic_project/controllers/home_controller.dart';
+import 'package:vpn_basic_project/controllers/location_controller.dart';
+import 'package:vpn_basic_project/main.dart';
 import 'package:vpn_basic_project/models/vpn.dart';
 import 'package:vpn_basic_project/services/vpn_engine.dart';
 
@@ -12,15 +14,20 @@ class VpnCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<HomeController>();
+    final locationController = Get.find<LocationController>();
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        // ✅ Save VPN to local storage when tapped
+        await locationController.saveSelectedVpn(vpn);
         // ✅ Set VPN details and ping when a VPN is selected
         controller.vpn.value = vpn;
         controller.ping.value = vpn.Speed ~/ 1024; // ✅ Convert to ms
         Get.back();
-        if (controller.vpnState == VpnEngine.vpnDisconnected) {
+        if (controller.vpnState.value == VpnEngine.vpnConnected) {
           VpnEngine.stopVpn();
-          controller.connectToVpn();
+          Future.delayed(Duration(seconds: 2), () {
+            controller.connectToVpn();
+          });
         } else {
           controller.connectToVpn();
         }
@@ -70,9 +77,9 @@ class VpnCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           _formatSpeed(vpn.Speed),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: Colors.black54,
+                            color: Theme.of(context).lightText,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -87,10 +94,10 @@ class VpnCard extends StatelessWidget {
                 children: [
                   Text(
                     '${vpn.NumVpnSessions}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black54,
+                      color: Theme.of(context).lightText,
                     ),
                   ),
                   const Icon(
