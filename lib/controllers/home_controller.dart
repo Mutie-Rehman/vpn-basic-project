@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vpn_basic_project/helpers/ad_helper.dart';
+import 'package:vpn_basic_project/helpers/my_dialogs.dart';
 import 'package:vpn_basic_project/models/vpn.dart';
 import 'package:vpn_basic_project/models/vpn_config.dart';
 import 'package:vpn_basic_project/services/vpn_engine.dart';
@@ -46,7 +48,11 @@ class HomeController extends GetxController {
   }
 
   void _connectToVpn({bool shouldReconnect = false}) {
-    if (vpn.value.OpenVPNConfigDataBase64.isEmpty) return;
+    if (vpn.value.OpenVPNConfigDataBase64.isEmpty) {
+      MyDialogs.info(msg: "Select a location by clicking \'Change Location\'");
+      return;
+    }
+    ;
 
     if (vpnState.value == VpnEngine.vpnDisconnected) {
       final data = Base64Decoder().convert(vpn.value.OpenVPNConfigDataBase64);
@@ -59,7 +65,11 @@ class HomeController extends GetxController {
 
       /// Start if stage is disconnected
       startTimer.value = true;
-      VpnEngine.startVpn(vpnConfig);
+      //showing interstitial Ad
+      AdHelper.showInterstitialAd(onComplete: () {
+        VpnEngine.startVpn(vpnConfig);
+      });
+
       _saveVpnState(true); // ✅ Save state when connected
     } else {
       /// Stop if connected
@@ -74,6 +84,16 @@ class HomeController extends GetxController {
         });
       }
     }
+  }
+
+  // ✅ Clear last VPN state and data
+  Future<void> clearVpnState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selected_vpn'); // Remove VPN info
+    await prefs.remove('vpn_connected'); // Remove VPN state
+    vpn.value = Vpn.fromJson({}); // Clear the VPN object
+    ping.value = 0; // Reset ping value
+    update(); // Refresh UI
   }
 
   //getter for vpn button color
