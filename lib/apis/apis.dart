@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:csv/csv.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:http/http.dart' as http;
+import 'package:vpn_basic_project/helpers/my_dialogs.dart';
+import 'package:vpn_basic_project/models/ip_details.dart';
 import 'package:vpn_basic_project/models/vpn.dart';
 
 class Apis {
@@ -86,10 +89,28 @@ class Apis {
         log('Failed to fetch VPN servers. Status code: ${res.statusCode}');
       }
     } catch (e) {
+      MyDialogs.error(msg: "Oops, Some Error Occured");
       log('Error fetching VPN servers: $e');
     }
     vpnList.shuffle();
 
     return vpnList;
+  }
+
+  //For Network Testing Api
+  static Future<void> getIPDetails({required Rx<IPDetails> ipData}) async {
+    try {
+      final res = await http
+          .get(
+            Uri.parse('http://ip-api.com/json/'),
+          )
+          .timeout(const Duration(seconds: 15));
+      final data = jsonDecode(res.body);
+      log(data.toString());
+      ipData.value = IPDetails.fromJson(data);
+    } catch (e) {
+      MyDialogs.error(msg: "Oops, Some Error Occured");
+      log('Error parsing row: $e');
+    }
   }
 }
