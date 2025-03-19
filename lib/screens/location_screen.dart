@@ -3,14 +3,17 @@ import 'package:get/get.dart';
 import 'package:vpn_basic_project/controllers/location_controller.dart';
 import 'package:vpn_basic_project/widgets/vpn_card.dart';
 
-class LocationScreen extends StatelessWidget {
-  const LocationScreen({super.key});
+class LocationScreen extends StatefulWidget {
+  LocationScreen({super.key});
 
+  @override
+  _LocationScreenState createState() => _LocationScreenState();
+}
+
+class _LocationScreenState extends State<LocationScreen> {
   @override
   Widget build(BuildContext context) {
     final locationController = Get.put(LocationController());
-
-    // ✅ If the list is empty, trigger API call or load from cache
     locationController.getVpnData();
 
     return GetBuilder<LocationController>(
@@ -33,11 +36,9 @@ class LocationScreen extends StatelessWidget {
               : controller.vpnList.isEmpty
                   ? _noVpnFound()
                   : _vpnData(controller),
-
           // ✅ Refresh Button
           floatingActionButton: FloatingActionButton(
             onPressed: () async {
-              // ✅ Force refresh from API
               await controller.refreshVpnData();
             },
             backgroundColor: Colors.blue,
