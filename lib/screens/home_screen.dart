@@ -9,6 +9,7 @@ import 'package:vpn_basic_project/controllers/theme_controller.dart';
 import 'package:vpn_basic_project/global/global_variables.dart';
 import 'package:vpn_basic_project/models/vpn_status.dart';
 import 'package:vpn_basic_project/screens/location_screen.dart';
+import 'package:vpn_basic_project/screens/network_test_screen.dart';
 import 'package:vpn_basic_project/widgets/count_down_timer.dart';
 import 'package:vpn_basic_project/widgets/home_card.dart';
 import '../services/vpn_engine.dart';
@@ -45,12 +46,15 @@ class HomeScreen extends StatelessWidget {
           ),
           IconButton(
             padding: EdgeInsets.only(right: 10),
-            onPressed: () {},
+            onPressed: () {
+              Get.to(() => NetworkTestScreen());
+            },
             icon: Icon(
               CupertinoIcons.info,
               color: Colors.white,
             ),
           ),
+          _clearVpnButton(),
         ],
       ),
 
@@ -154,6 +158,22 @@ class HomeScreen extends StatelessWidget {
       bottomNavigationBar: _changeLocation(),
     );
   }
+
+  // Clear VPN Button
+  Widget _clearVpnButton() => IconButton(
+        icon: const Icon(Icons.delete, color: Colors.white, size: 28),
+        onPressed: () {
+          _controller.clearVpnState(); // ✅ Clear stored VPN state
+          Get.snackbar(
+            'Success',
+            'VPN data cleared successfully',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.black87,
+            colorText: Colors.white,
+          );
+        },
+        tooltip: 'Clear VPN Data',
+      );
 
 //VPN BUTTON
   Widget _vpnButton() => Column(
