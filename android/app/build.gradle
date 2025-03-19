@@ -67,4 +67,8 @@ dependencies {
           strictly '2.7.0'
       }
     }
+    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation("com.google.android.gms:play-services-ads:22.6.0") {
+        exclude module: "webview_flutter_android"
+    }
 }
