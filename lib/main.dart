@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:vpn_basic_project/controllers/theme_controller.dart';
+import 'package:vpn_basic_project/helpers/ad_helper.dart';
 import 'package:vpn_basic_project/screens/splash_screen.dart';
 
 void main() async {
@@ -10,6 +11,9 @@ void main() async {
   // ✅ Initialize ThemeController before running the app
   Get.put(ThemeController());
 
+  await AdHelper.initAds();
+
+  // For setting orientation of screen
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]).then((v) {
