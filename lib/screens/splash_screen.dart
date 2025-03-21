@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/route_manager.dart';
+import 'package:vpn_basic_project/helpers/ad_helper.dart';
 import 'package:vpn_basic_project/main.dart';
 import 'package:vpn_basic_project/screens/home_screen.dart';
 
@@ -23,6 +24,7 @@ class _SplashScreenState extends State<SplashScreen> {
   navigateToNextScreen() {
     Timer(Duration(seconds: 5), () {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      AdHelper.preCacheInterstitialAd();
       Get.off(() => HomeScreen());
     });
   }
