@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1071576265875",
+    "project_id": "freevpn-c08da",
+    "storage_bucket": "freevpn-c08da.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071576265875:android:74a31d4665bd135a2cc966",
+        "android_client_info": {
+          "package_name": "com.mutieawaisi.freevpn"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAluDKt5-LoDjLa-LMfe7b9TQh6zEn8o9Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

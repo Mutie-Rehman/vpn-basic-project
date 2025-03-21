@@ -30,6 +30,8 @@ dependencies:
 
   # for integrating ads 
   google_mobile_ads: 2.0.0
+  firebase_core: ^3.12.1
+  firebase_remote_config: ^5.4.2
 
 
 
